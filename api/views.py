@@ -1,7 +1,10 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from TwitterSearch import *
 import pyrebase
-# Create your views here.
+import os
+import json
+
 def search(request):
 	config = {
 		"apiKey": os.environ['apiKey'],
@@ -20,12 +23,24 @@ def search(request):
 
 	# Get a reference to the database service
 	db = firebase.database()
+	
+	try:
+		tso = TwitterSearchOrder()
+		tso.set_keywords(['Film', 'Batman'])
+		tso.set_language('en')
+		
+		ts = TwitterSearch(
+			consumer_key = os.environ['consumerKey'],
+			consumer_secret = os.environ['consumerSecret'],
+			access_token = os.environ['accessToken'],
+			access_token_secret = os.environ['accessTokenSecret']
+		)
+		
+		for tweet in ts.search_tweets_iterable(tso):
+			# Pass the user's idToken to the push method
+			db.child("tweet").child(tweet['id']).set(tweet)
+		result = db.child("tweet").get()
+		return JsonResponse(result.val())
 
-	# data to save
-	data = {
-		"name": "Mortimer 'Morty' Smith"
-	}
-
-	# Pass the user's idToken to the push method
-	results = db.child("users").push(data, user['idToken'])
-	return HttpResponse(data)
+	except TwitterSearchException as e:
+		return HttpResponse(e)
