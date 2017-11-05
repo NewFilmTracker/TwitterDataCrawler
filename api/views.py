@@ -1,9 +1,8 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from TwitterSearch import *
 import pyrebase
 import os
-import json
 
 def search(request):
 	config = {
@@ -38,8 +37,8 @@ def search(request):
 		
 		for tweet in ts.search_tweets_iterable(tso):
 			# Pass the user's idToken to the push method
-			db.child("tweet").child(tweet['id']).set(tweet)
-		result = db.child("tweet").get()
+			db.child("tweet").child(tweet['id']).set(tweet, user['idToken'])
+		result = db.child("tweet").get(user['idToken'])
 		return JsonResponse(result.val())
 
 	except TwitterSearchException as e:
