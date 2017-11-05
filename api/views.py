@@ -23,6 +23,28 @@ def search(request):
 	# Get a reference to the database service
 	db = firebase.database()
 	
+	result = db.child("tweet").get(user['idToken'])
+	return JsonResponse(result.val())
+
+def save(request):
+	config = {
+		"apiKey": os.environ['apiKey'],
+		"authDomain": os.environ['authDomain'],
+		"databaseURL": os.environ['databaseURL'],
+		"storageBucket": os.environ['storageBucket']
+	}
+	firebase = pyrebase.initialize_app(config)
+	email = os.environ['email']
+	password = os.environ['password']
+	# Get a reference to the auth service
+	auth = firebase.auth()
+
+	# Log the user in
+	user = auth.sign_in_with_email_and_password(email, password)
+
+	# Get a reference to the database service
+	db = firebase.database()
+	
 	try:
 		tso = TwitterSearchOrder()
 		tso.set_keywords(['Film', 'Batman'])
@@ -38,8 +60,6 @@ def search(request):
 		for tweet in ts.search_tweets_iterable(tso):
 			# Pass the user's idToken to the push method
 			db.child("tweet").child(tweet['id']).set(tweet, user['idToken'])
-		result = db.child("tweet").get(user['idToken'])
-		return JsonResponse(result.val())
-
+		return HttpResponse("Success save")
 	except TwitterSearchException as e:
 		return HttpResponse(e)
