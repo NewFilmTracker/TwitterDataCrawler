@@ -1,6 +1,7 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.http import require_http_methods
+from .forms import QueryForm
 from TwitterSearch import *
 import pyrebase
 import os
@@ -22,37 +23,48 @@ def initializationDb():
 	user = auth.sign_in_with_email_and_password(email, password)
 
 	# Get a reference to the database service
-	return firebase.database()
+	return firebase.database(), user['idToken']
 	
 @require_http_methods(["GET"])
 def search(request):
-	db = initializationDb()
-	result = db.child("tweet").get(user['idToken'])
+	db, token = initializationDb()
+	result = db.child("tweet").get(token)
 	return JsonResponse(result.val())
 
-@require_http_methods(["POST"])
+@require_http_methods(["GET","POST"])
 def save(request):
-	db = initializationDb()
+	if request.method == 'GET':
+		form = QueryForm()
+		return render(request, 'save.html', {'form': form})
+	elif request.method == 'POST':
+		form = QueryForm(request.POST)
+		if form.is_valid():
+			try:
+				db, token = initializationDb()
+				lang = request.POST.get("lang", "en")
+				queryRaw = request.POST.get("query", "Film")
+				query = queryRaw.split()
+				tso = TwitterSearchOrder()
+				tso.set_keywords(query)
+				tso.set_include_entities(False)
+				if lang == 'en' or lang == 'id':
+					tso.set_language(lang)
+						
+				ts = TwitterSearch(
+					consumer_key = os.environ['consumerKey'],
+					consumer_secret = os.environ['consumerSecret'],
+					access_token = os.environ['accessToken'],
+					access_token_secret = os.environ['accessTokenSecret']
+				)
+						
+				for tweet in ts.search_tweets_iterable(tso):
+					# Pass the user's idToken to the push method
+					data = {"username": tweet['user']['screen_name'], "tweet":tweet['text'],
+					"favorite_count": tweet['favorite_count'], "retweet_count": tweet['retweet_count'], "lang":lang}
+					db.child("tweet").child(tweet['id']).set(data, token)
+				return HttpResponse("Success")
+			except TwitterSearchException as e:
+				return HttpResponse(e)
+		else:
+			return HttpResponse("Not Valid")
 	
-	try:
-		lang = request.POST.get("lang", "en")
-		queryRaw = request.POST.get("query", "Film")
-		tso = TwitterSearchOrder()
-		query = queryRaw.split()
-		tso.set_keywords(query)
-		if lang == 'en' or lang == 'id':
-			tso.set_language(lang)
-		
-		ts = TwitterSearch(
-			consumer_key = os.environ['consumerKey'],
-			consumer_secret = os.environ['consumerSecret'],
-			access_token = os.environ['accessToken'],
-			access_token_secret = os.environ['accessTokenSecret']
-		)
-		
-		for tweet in ts.search_tweets_iterable(tso):
-			# Pass the user's idToken to the push method
-			db.child("tweet").child(tweet['id']).set(tweet, user['idToken'])
-		return JsonResponse({'status':200, 'message':'Success Saved to Database'})
-	except TwitterSearchException as e:
-		return HttpResponse(e)
