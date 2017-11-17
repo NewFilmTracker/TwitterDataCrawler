@@ -5,7 +5,7 @@ from .forms import QueryForm
 from TwitterSearch import *
 import pyrebase
 import os
-import tmbdsimple as tmdb
+import tmdbsimple as tmdb
 
 def initializationDb():
 	config = {
