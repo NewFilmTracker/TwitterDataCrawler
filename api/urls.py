@@ -5,4 +5,5 @@ from . import views
 urlpatterns = [
 	url(r'^search', views.search, name='search'),
 	url(r'^savesearch', views.save, name='save'),
+	url(r'^release', views.movie_list, name='release')
 ]

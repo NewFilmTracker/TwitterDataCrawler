@@ -5,6 +5,7 @@ from .forms import QueryForm
 from TwitterSearch import *
 import pyrebase
 import os
+import tmbdsimple as tmdb
 
 def initializationDb():
 	config = {
@@ -68,3 +69,9 @@ def save(request):
 		else:
 			return HttpResponse("Not Valid")
 	
+@require_http_methods(["GET","POST"])
+def movie_list(request):
+	tmdb.API_KEY = os.environ['KEY-MDB']
+	discover = tmdb.Discover()
+	movies = discover.movie(year=2017, sort_by=release_date.desc, release_date_gte='2017-11-01', release_date_lte='2017-11-30', page=5)
+	return HttpResponse(movies)
