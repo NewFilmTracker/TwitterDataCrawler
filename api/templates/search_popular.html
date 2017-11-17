@@ -1,0 +1,15 @@
+<html>
+    <head>
+    <title>Save to Database Movie</title>
+    </head>
+        
+    <body>
+    <h1>Save Popular to Database</h1>
+    
+    <form action="{% url 'savepopular' %}" method="post">
+    {% csrf_token %}
+    <input type="submit" value="Save Popular">
+    </form>
+    </body>
+    </html>
+    

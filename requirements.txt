@@ -2,4 +2,4 @@ django
 gunicorn
 pyrebase
 TwitterSearch
-tmdbsimple
+tmdbv3api
