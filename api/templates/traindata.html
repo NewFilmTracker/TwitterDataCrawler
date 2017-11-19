@@ -1,0 +1,16 @@
+<html>
+<head>
+<title>Save to Database Query</title>
+</head>
+
+<body>
+<h1>Twitter Query to Save</h1>
+<p>Need many query? Seperated with ';'</p>
+
+<form action="{% url 'traindata' %}" method="post">
+{% csrf_token %}
+{{ form }}
+<input type="submit" value="Save">
+</form>
+</body>
+</html>

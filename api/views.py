@@ -6,6 +6,7 @@ from TwitterSearch import *
 from tmdbv3api import TMDb, Discover, Movie
 import pyrebase
 import os
+import json
 
 def initializationDb():
 	config = {
@@ -46,14 +47,14 @@ def save(request):
 				tso.set_count(count)
 				if lang == 'en' or lang == 'id':
 					tso.set_language(lang)
-						
+
 				ts = TwitterSearch(
 					consumer_key = os.environ['consumerKey'],
 					consumer_secret = os.environ['consumerSecret'],
 					access_token = os.environ['accessToken'],
 					access_token_secret = os.environ['accessTokenSecret']
 				)
-						
+
 				for tweet in ts.search_tweets_iterable(tso):
 					# Pass the user's idToken to the push method
 					data = {"username": tweet['user']['screen_name'], "tweet":tweet['text'],
@@ -66,7 +67,7 @@ def save(request):
 		else:
 			response = {"status": 401, "message": "Invalid Input"}
 			return JsonResponse(response)
-	
+
 @require_http_methods(["GET","POST"])
 def movie_list(request):
 	if request.method == 'GET':
@@ -82,7 +83,7 @@ def movie_list(request):
 			'primary_release_date.gte': release_date_gte,
 			'primary_release_date.lte': release_date_lte,
 		})
-		
+
 		db, token = initializationDb()
 		for movie in movies:
 			data = {"id": movie.id, "title":movie.title,
@@ -103,7 +104,7 @@ def popular_movie(request):
 		tmdb.api_key = os.environ['KEY-MDB']
 		movie = Movie()
 		popular = movie.popular()
-		
+
 		db, token = initializationDb()
 		db.child("movie_popular").remove(token)
 		for p in popular:
@@ -133,3 +134,43 @@ def retrieve_movie(request):
 	db, token = initializationDb()
 	result = db.child("movie_list").get(token)
 	return JsonResponse(result.val())
+
+@require_http_methods(["GET","POST"])
+def traindata(request):
+	if request.method == 'GET':
+		form = QueryForm()
+		return render(request, 'traindata.html', {'form': form})
+	elif request.method == 'POST':
+		form = QueryForm(request.POST)
+		if form.is_valid():
+			try:
+				db, token = initializationDb()
+				lang = request.POST.get("lang", "en")
+				queryRaw = request.POST.get("query", "Film")
+				count = int(request.POST.get("count", 10))
+				query = queryRaw.split(';')
+				tso = TwitterSearchOrder()
+				tso.set_keywords(query)
+				tso.set_include_entities(False)
+				tso.set_count(count)
+				if lang == 'en' or lang == 'id':
+					tso.set_language(lang)
+
+				ts = TwitterSearch(
+					consumer_key = os.environ['consumerKey'],
+					consumer_secret = os.environ['consumerSecret'],
+					access_token = os.environ['accessToken'],
+					access_token_secret = os.environ['accessTokenSecret']
+				)
+				response = [];
+				for tweet in ts.search_tweets_iterable(tso):
+					# Pass the user's idToken to the push method
+					response.append(tweet['text'])
+				responseData = {}
+				responseData['tweet'] = response
+				return JsonResponse(responseData)
+			except TwitterSearchException as e:
+				return HttpResponse(e)
+		else:
+			response = {"status": 401, "message": "Invalid Input"}
+			return JsonResponse(response)
