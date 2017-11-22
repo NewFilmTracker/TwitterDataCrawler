@@ -145,35 +145,35 @@ def traindata(request):
 		return render(request, 'traindata.html', {'form': form})
 	elif request.method == 'POST':
 		form = QueryForm(request.POST)
-		if form.is_valid():
-			try:
-				db, token = initializationDb()
-				lang = request.POST.get("lang", "en")
-				queryRaw = request.POST.get("query", "Film")
-				count = int(request.POST.get("count", 10))
-				query = queryRaw.split(';')
-				tso = TwitterSearchOrder()
-				tso.set_keywords(query)
-				tso.set_include_entities(False)
-				tso.set_count(count)
-				if lang == 'en' or lang == 'id':
-					tso.set_language(lang)
+		# if form.is_valid():
+		try:
+			db, token = initializationDb()
+			lang = request.POST.get("lang", "en")
+			queryRaw = request.POST.get("query", "Film")
+			count = int(request.POST.get("count", 10))
+			query = queryRaw.split(';')
+			tso = TwitterSearchOrder()
+			tso.set_keywords(query)
+			tso.set_include_entities(False)
+			tso.set_count(count)
+			if lang == 'en' or lang == 'id':
+				tso.set_language(lang)
 
-				ts = TwitterSearch(
-					consumer_key = os.environ['consumerKey'],
-					consumer_secret = os.environ['consumerSecret'],
-					access_token = os.environ['accessToken'],
-					access_token_secret = os.environ['accessTokenSecret']
-				)
-				response = [];
-				for tweet in ts.search_tweets_iterable(tso):
-					# Pass the user's idToken to the push method
-					response.append(tweet['text'])
-				responseData = {}
-				responseData['tweet'] = response
-				return JsonResponse(responseData)
-			except TwitterSearchException as e:
-				return HttpResponse(e)
-		else:
-			response = {"status": 401, "message": "Invalid Input"}
-			return JsonResponse(response)
+			ts = TwitterSearch(
+				consumer_key = os.environ['consumerKey'],
+				consumer_secret = os.environ['consumerSecret'],
+				access_token = os.environ['accessToken'],
+				access_token_secret = os.environ['accessTokenSecret']
+			)
+			response = [];
+			for tweet in ts.search_tweets_iterable(tso):
+				# Pass the user's idToken to the push method
+				response.append(tweet['text'])
+			responseData = {}
+			responseData['tweet'] = response
+			return JsonResponse(responseData)
+		except TwitterSearchException as e:
+			return HttpResponse(e)
+		# # else:
+		# 	response = {"status": 401, "message": "Invalid Input"}
+		# 	return JsonResponse(response)
