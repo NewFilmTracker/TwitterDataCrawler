@@ -141,8 +141,6 @@ def traindata(request):
 		form = QueryForm()
 		return render(request, 'traindata.html', {'form': form})
 	elif request.method == 'POST':
-		form = QueryForm(request.POST)
-		# if form.is_valid():
 		try:
 			db, token = initializationDb()
 			lang = request.POST.get("lang", "en")
@@ -171,6 +169,3 @@ def traindata(request):
 			return JsonResponse(responseData)
 		except TwitterSearchException as e:
 			return HttpResponse(e)
-		else:
-			response = {"status": 401, "message": "Invalid Input"}
-			return JsonResponse(response)
