@@ -177,15 +177,15 @@ def retrieve_movie(request):
 		output = {}
 		movies = []
 		for res in value:
-			if value[res]['title'] in name:
-				movies.append(result[res])
+			if name in value[res]['title']:
+				movies.append(value[res])
 		output['movies'] = movies
 		return JsonResponse(output)
 	elif single == 1:
 		output = {}
 		for res in value:
 			if value[res]['title'] == name:
-				output = result[res]
+				output = value[res]
 				break
 		return JsonResponse(output)
 	else:
