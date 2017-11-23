@@ -162,7 +162,9 @@ def search(request):
 def retrieve_popular(request):
 	db, token = initializationDb()
 	result = db.child("movie_popular").get(token)
-	return JsonResponse(result.val())
+	output = {}
+	output['movies'] = result.val()
+	return JsonResponse(output)
 
 
 @require_http_methods(["GET"])
@@ -184,11 +186,13 @@ def retrieve_movie(request):
 		output = {}
 		for res in value:
 			if value[res]['title'] == name:
-				output = value[res]
+				output['movies'] = value[res]
 				break
 		return JsonResponse(output)
 	else:
-		return JsonResponse(value)
+		output = {}
+		output['movies'] = value
+		return JsonResponse(output)
 	
 @csrf_exempt
 @require_http_methods(["POST"])
