@@ -161,6 +161,7 @@ def search(request):
 @require_http_methods(["GET"])
 def retrieve_popular(request):
 	db, token = initializationDb()
+	output = {}
 	result = db.child("movie_popular").get(token)
 	output['movies'] = result.val().items()
 	return JsonResponse(output)
