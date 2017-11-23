@@ -8,7 +8,7 @@ urlpatterns = [
 	url(r'^release', views.retrieve_movie, name='release'),
 	url(r'^saverelease', views.movie_list, name='saverelease'),
 	url(r'^popular', views.retrieve_popular, name='popular'),
-	url(r'^search', views.search_movie, name='search'),
+	url(r'^searchmovie', views.search_movie, name='searchmovie'),
 	url(r'^savepopular', views.popular_movie, name='savepopular'),
 	url(r'^traindata', views.traindata, name='traindata')
 ]

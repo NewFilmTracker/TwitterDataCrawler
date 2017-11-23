@@ -138,14 +138,13 @@ def search_movie(request):
 			search = movie.search(query)
 
 			db, token = initializationDb()
-			db.child("movie_popular").remove(token)
 			for p in search:
 				data = {"id": p.id, "title": p.title,
 						"overview": p.overview, "poster_path": p.poster_path,
 						"release_date": p.release_date, "popularity": p.popularity,
 						"original_title": p.original_title, "vote_count": p.vote_count,
 						"vote_average": p.vote_average}
-				db.child("movie_popular").child(p.id).set(data, token)
+				db.child("movie_list").child(p.id).set(data, token)
 			response = {"status": 200, "message": "Success Save"}
 			return JsonResponse(response)
 		else:
