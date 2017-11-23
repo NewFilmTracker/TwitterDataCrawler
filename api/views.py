@@ -127,7 +127,7 @@ def popular_movie(request):
 def search_movie(request):
 	if request.method == 'GET':
 		form = FilmSearchForm()
-		return render(request, 'search_movie.html', {'form': form})
+		return render(request, 'save_search.html', {'form': form})
 	elif request.method == 'POST':
 		form = FilmSearchForm(request.POST)
 		if form.is_valid():
