@@ -10,4 +10,7 @@ class QueryForm(forms.Form):
 class ReleaseForm(forms.Form):
     start = forms.DateField(required=True, initial=datetime.date.today, input_formats=['%Y-%m-%d'])
     end = forms.DateField(required=True, initial=datetime.date.today, input_formats=['%Y-%m-%d'])
+
+class FilmSearchForm(forms.Form):
+    query = forms.CharField(required=True, max_length=100)
     
