@@ -1,0 +1,15 @@
+<html>
+<head>
+<title>Save to Database Query</title>
+</head>
+	
+<body>
+<h1>Search Movie</h1>
+
+<form action="{% url 'save' %}" method="post">
+{% csrf_token %}
+{{ form }}
+<input type="submit" value="Save">
+</form>
+</body>
+</html>
