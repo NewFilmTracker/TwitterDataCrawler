@@ -27,6 +27,7 @@ jobs:
         pip install -r requirements.txt
     - name: Run Tests
       env:
-        secretkey: test-secret-key-only 
+        secretkey: test-secret-key-only
+        debugStatus: True 
       run: |
         python manage.py test
