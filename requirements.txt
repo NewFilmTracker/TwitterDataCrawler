@@ -1,5 +1,5 @@
-django
-gunicorn
-pyrebase
-TwitterSearch
-tmdbv3api
+Django==3.1
+gunicorn==20.0.4
+pyrebase==3.0.27
+TwitterSearch==1.0.2
+tmdbv3api==1.6.2
